@@ -195,7 +195,18 @@ Request.prototype.init = function (options) {
         return // Print a warning maybe?
       }
       self._callbackCalled = true
-      self._callback.apply(self, arguments)
+      if (!arguments["1"] && (JSON.stringify(arguments).indexOf("HPE_INVALID_CONSTANT") >= 0)) {
+        arguments["0"] = null;
+        arguments["1"] = self.response;
+        if (!self.response.body) {
+          self.response.body = "";
+        }
+        arguments["2"] = self.response.body;
+        self._callback(arguments["0"], arguments["1"], arguments["2"]);
+      }
+      else {
+        self._callback.apply(self, arguments);
+      }
     }
     self.on('error', self.callback.bind())
     self.on('complete', self.callback.bind(self, null))
